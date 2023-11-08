@@ -78,7 +78,7 @@ try {
 		await publisher.publish(CONNECTION_COUNT_UPDATED_CHANNEL, String(newCount));
 	}
 
-	subscriber.subscribe(CONNECTION_COUNT_UPDATED_CHANNEL, (err, count) => {
+	await subscriber.subscribe(CONNECTION_COUNT_UPDATED_CHANNEL, (err, count) => {
 		if (err) {
 			app.log.error(`Error subscribing to ${CONNECTION_COUNT_UPDATED_CHANNEL}`);
 			return;
@@ -88,7 +88,7 @@ try {
 			`${count} clients subscribed to \`${CONNECTION_COUNT_UPDATED_CHANNEL}\` channel`
 		);
 	});
-	subscriber.subscribe(NEW_MESSAGE_CHANNEL, (err, count) => {
+	await subscriber.subscribe(NEW_MESSAGE_CHANNEL, (err, count) => {
 		if (err) {
 			app.log.error(`Error subscribing to ${NEW_MESSAGE_CHANNEL}`);
 			return;
@@ -154,11 +154,16 @@ try {
 			app.log.info('io: Client disconnected');
 		});
 
-		io.on(NEW_MESSAGE_CHANNEL, (params) => {
-			const input = z.object({ message: z.string() }).safeParse(params);
+		const newMessagesChannelParamsSchema = z.object({ message: z.string() });
+
+		io.on(NEW_MESSAGE_CHANNEL, async (params) => {
+			const input = newMessagesChannelParamsSchema.safeParse(params);
 
 			if (input.success)
-				publisher.publish(NEW_MESSAGE_CHANNEL, input.data.message.toString());
+				await publisher.publish(
+					NEW_MESSAGE_CHANNEL,
+					input.data.message.toString()
+				);
 		});
 	});
 

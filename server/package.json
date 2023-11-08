@@ -3,7 +3,7 @@
 	"version": "1.0.0",
 	"description": "",
 	"type": "module",
-	"main": "build/main.js",
+	"main": "build/src/main.js",
 	"scripts": {
 		"dev": "tsx watch src/main.ts",
 		"build": "tsc"
